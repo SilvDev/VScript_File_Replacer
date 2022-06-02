@@ -1,6 +1,6 @@
 /*
 *	VScript File Replacer
-*	Copyright (C) 2021 Silvers
+*	Copyright (C) 2022 Silvers
 *
 *	This program is free software: you can redistribute it and/or modify
 *	it under the terms of the GNU General Public License as published by
@@ -18,12 +18,12 @@
 
 
 
-#define PLUGIN_VERSION		"1.11"
+#define PLUGIN_VERSION		"1.12"
 
 /*======================================================================================
 	Plugin Info:
 
-*	Name	:	[L4D2 & CS:GO] VScript File Replacer
+*	Name	:	[L4D2 & CS:GO & NMRiH] VScript File Replacer
 *	Author	:	SilverShot
 *	Descrp	:	Replaces any VScript file with a custom one. Modify lines or the whole file.
 *	Link	:	https://forums.alliedmods.net/showthread.php?t=318024
@@ -31,6 +31,9 @@
 
 ========================================================================================
 	Change Log:
+
+1.12 (03-Jun-2022)
+	- Added support for "NMRiH" game. Thanks to "Dysphie" for the signatures.
 
 1.11 (07-Oct-2021)
 	- Fixed compile errors on SourcecMod version 1.11. Thanks to "Hajitek Majitek" for reporting.
@@ -141,7 +144,7 @@ const int ICE_blocks = 8;
 // ====================================================================================================
 public Plugin myinfo =
 {
-	name = "[L4D2 & CS:GO] VScript File Replacer",
+	name = "[L4D2 & CS:GO & NMRiH] VScript File Replacer",
 	author = "SilverShot",
 	description = "Replaces any VScript file with a custom one. Modify lines or the whole file.",
 	version = PLUGIN_VERSION,
@@ -151,10 +154,21 @@ public Plugin myinfo =
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	gEngine = GetEngineVersion();
-	if( gEngine != Engine_Left4Dead2 && gEngine != Engine_CSGO )
+	if( gEngine != Engine_Left4Dead2 && gEngine != Engine_CSGO && gEngine != Engine_SDK2013 )
 	{
 		strcopy(error, err_max, "Your game is unsupported by this plugin.");
 		return APLRes_SilentFailure;
+	}
+
+	if( gEngine == Engine_SDK2013 )
+	{
+		char sFolder[PLATFORM_MAX_PATH];
+		GetGameFolderName(sFolder, sizeof(sFolder));
+		if( strcmp(sFolder, "nmrih") )
+		{
+			strcopy(error, err_max, "Your game is unsupported by this plugin.");
+			return APLRes_SilentFailure;
+		}
 	}
 
 	return APLRes_Success;
@@ -241,7 +255,7 @@ public void OnMapEnd()
 // ====================================================================================================
 //					COMMANDS
 // ====================================================================================================
-public Action CmdDump(int client, int args)
+Action CmdDump(int client, int args)
 {
 	float time = GetEngineTime();
 
@@ -288,7 +302,7 @@ public Action CmdDump(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdEncrypt(int client, int args)
+Action CmdEncrypt(int client, int args)
 {
 	if( args != 1 )
 	{
@@ -319,7 +333,7 @@ public Action CmdEncrypt(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdExec(int client, int args)
+Action CmdExec(int client, int args)
 {
 	if( args != 1 )
 	{
@@ -347,7 +361,7 @@ public Action CmdExec(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdFile(int client, int args)
+Action CmdFile(int client, int args)
 {
 	if( args != 1 )
 	{
@@ -384,7 +398,7 @@ public Action CmdFile(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdList(int client, int args)
+Action CmdList(int client, int args)
 {
 	char section[PLATFORM_MAX_PATH];
 	char custom[PLATFORM_MAX_PATH];
@@ -403,7 +417,7 @@ public Action CmdList(int client, int args)
 			ReplyToCommand(client, "%d) \"%s\"", x+1, section);
 
 		/*
-		// Print script find-replace values. Uncomment variable initializations above and section below to enable. Also remove the cleanup of gOverrideValues in ResetPlugin.
+		// Print script find-replace values. Uncomment section below to enable. Also remove the cleanup of gOverrideValues in ResetPlugin.
 		// Works: but spammy with string replacements, also gOverrideValues is not required so keeping that data for this is simply wasted resources.
 		// Also requires you to remove the "Array no longer required" section from ResetPlugin to enable.
 		char key[MAX_STRING_LENGTH];
@@ -426,7 +440,7 @@ public Action CmdList(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdReload(int client, int args)
+Action CmdReload(int client, int args)
 {
 	float time = GetEngineTime();
 	ResetPlugin();
@@ -434,7 +448,7 @@ public Action CmdReload(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CmdListen(int client, int args)
+Action CmdListen(int client, int args)
 {
 	g_bListen = !g_bListen;
 
@@ -453,7 +467,7 @@ public Action CmdListen(int client, int args)
 // ====================================================================================================
 //					DETOUR
 // ====================================================================================================
-public MRESReturn VScriptServerCompileScript(Handle hReturn, Handle hParams)
+MRESReturn VScriptServerCompileScript(Handle hReturn, Handle hParams)
 {
 	// Load new map data
 	if( g_bLoadNewMap ) ResetPlugin();
@@ -746,7 +760,7 @@ void SaveOverrides()
 			// Regex match file
 			if( index != -1 )
 			{
-				// Only generate full vscript list once in loop
+				// Only generate full VScript list once in loop
 				if( aVScriptList == null )
 				{
 					aVScriptList = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
@@ -1096,7 +1110,7 @@ bool ParseConfigFile(const char[] file)
 	return (result == SMCError_Okay);
 }
 
-public SMCResult Config_NewSection(Handle parser, const char[] section, bool quotes)
+SMCResult Config_NewSection(Handle parser, const char[] section, bool quotes)
 {
 	g_iSectionLevel++;
 
@@ -1166,7 +1180,7 @@ public SMCResult Config_NewSection(Handle parser, const char[] section, bool quo
 	return SMCParse_Continue;
 }
 
-public SMCResult Config_KeyValue(Handle parser, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
+SMCResult Config_KeyValue(Handle parser, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
 {
 	// Debug
 	if( g_hCvarDebug.IntValue & 4 )
@@ -1207,13 +1221,13 @@ public SMCResult Config_KeyValue(Handle parser, const char[] key, const char[] v
 	return SMCParse_Continue;
 }
 
-public SMCResult Config_EndSection(Handle parser)
+SMCResult Config_EndSection(Handle parser)
 {
 	g_iSectionLevel--;
 	return SMCParse_Continue;
 }
 
-public void Config_End(Handle parser, bool halted, bool failed)
+void Config_End(Handle parser, bool halted, bool failed)
 {
 	if( failed )
 		SetFailState("Error: Cannot load the VScripts Override config.");
