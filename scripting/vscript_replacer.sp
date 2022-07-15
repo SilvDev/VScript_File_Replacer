@@ -18,7 +18,7 @@
 
 
 
-#define PLUGIN_VERSION		"1.12"
+#define PLUGIN_VERSION		"1.13"
 
 /*======================================================================================
 	Plugin Info:
@@ -32,8 +32,12 @@
 ========================================================================================
 	Change Log:
 
+1.13 (15-Jul-2022)
+	- Increased buffer size. Thanks to "Psyk0tik" for reporting.
+
 1.12 (03-Jun-2022)
 	- Added support for "NMRiH" game. Thanks to "Dysphie" for the signatures.
+	- GameData file and plugin updated.
 
 1.11 (07-Oct-2021)
 	- Fixed compile errors on SourcecMod version 1.11. Thanks to "Hajitek Majitek" for reporting.
@@ -109,8 +113,8 @@
 // Without this server receives: "[SM] Exception reported: Instruction contained invalid parameter".
 // The largest Valve VScript file I've seen was ~280 KB.
 // If you require more please notify me, increase and recompile.
-// This is 300 KB (300 * 1024) - only used when saving/decrypting/encrypting files and cleared after.
-#define MAX_BUFFER 307200
+// This is 400 KB (400 * 1024) - only used when saving/decrypting/encrypting files and cleared after.
+#define MAX_BUFFER 409600
 #pragma dynamic MAX_BUFFER
 
 #include <sourcemod>
