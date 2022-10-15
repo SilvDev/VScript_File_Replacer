@@ -18,7 +18,7 @@
 
 
 
-#define PLUGIN_VERSION		"1.13"
+#define PLUGIN_VERSION		"1.14"
 
 /*======================================================================================
 	Plugin Info:
@@ -31,6 +31,10 @@
 
 ========================================================================================
 	Change Log:
+
+1.14 (15-Oct-2022)
+	- Added an include file for other plugins to require this plugin.
+	- Added registering the plugin library as "vscript_replacer" for plugins to detect.
 
 1.13 (15-Jul-2022)
 	- Increased buffer size. Thanks to "Psyk0tik" for reporting.
@@ -174,6 +178,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 			return APLRes_SilentFailure;
 		}
 	}
+
+	RegPluginLibrary("vscript_replacer");
 
 	return APLRes_Success;
 }
