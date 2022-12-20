@@ -99,4 +99,25 @@
 			}
 		}
 	}
+
+	"tf"
+	{
+		"Keys"
+		{
+			"ICEKey"		"E2NcUkG2"
+		}
+
+		"Signatures"
+		{
+			/* int VScriptCompileScript(const char *pszScriptName, bool bWarnMissing) */
+			"VScriptServerCompileScript"
+			{
+				"library"		"server"
+				"linux"			"@_Z20VScriptCompileScriptPKcb"
+				"windows"		"\x55\x8B\x2A\x8B\x2A\x2A\x2A\x2A\x2A\x81\x2A\x2A\x2A\x2A\x2A\x85\x2A\x75"
+				/* 55 8B ? 8B ? ? ? ? ? 81 ? ? ? ? ? 85 ? 75 */
+				/* Search "Script file type does not match VM type" */
+			}
+		}
+	}
 }

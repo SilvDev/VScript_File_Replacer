@@ -18,7 +18,7 @@
 
 
 
-#define PLUGIN_VERSION		"1.14"
+#define PLUGIN_VERSION		"1.15"
 
 /*======================================================================================
 	Plugin Info:
@@ -31,6 +31,10 @@
 
 ========================================================================================
 	Change Log:
+
+1.15 (20-Dec-2022)
+	- Added support for Team Fortress 2.
+	- GameData file and plugin updated.
 
 1.14 (15-Oct-2022)
 	- Added an include file for other plugins to require this plugin.
@@ -162,7 +166,7 @@ public Plugin myinfo =
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
 	gEngine = GetEngineVersion();
-	if( gEngine != Engine_Left4Dead2 && gEngine != Engine_CSGO && gEngine != Engine_SDK2013 )
+	if( gEngine != Engine_Left4Dead2 && gEngine != Engine_CSGO && gEngine != Engine_TF2 && gEngine != Engine_SDK2013 )
 	{
 		strcopy(error, err_max, "Your game is unsupported by this plugin.");
 		return APLRes_SilentFailure;
