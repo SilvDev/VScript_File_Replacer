@@ -1,6 +1,6 @@
 /*
 *	VScript File Replacer
-*	Copyright (C) 2022 Silvers
+*	Copyright (C) 2023 Silvers
 *
 *	This program is free software: you can redistribute it and/or modify
 *	it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 
 
-#define PLUGIN_VERSION		"1.15"
+#define PLUGIN_VERSION		"1.16"
 
 /*======================================================================================
 	Plugin Info:
@@ -31,6 +31,10 @@
 
 ========================================================================================
 	Change Log:
+
+1.16 (10-Mar-2023)
+	- Changed command "sm_vs_dump" to display the number of scripts dumped.
+	- Fixed error when no VScript files or directories exist. Thanks to "Sreaper" for reporting.
 
 1.15 (20-Dec-2022)
 	- Added support for Team Fortress 2.
@@ -278,6 +282,7 @@ Action CmdDump(int client, int args)
 	RecursiveSearchDirs(aVScriptList, "scripts/vscripts");
 
 	// Loop files and save
+	int total;
 	bool ICE;
 	char sPath[PLATFORM_MAX_PATH];
 
@@ -308,11 +313,12 @@ Action CmdDump(int client, int args)
 		}
 		else continue;
 
+		total++;
 		SaveFile(null, "", sPath, ICE, true);
 	}
 
 	delete aVScriptList;
-	ReplyToCommand(client, "Dumped VScripts to servers /scripts/vscripts/vscripts_dump/ folder. Took %f seconds.", GetEngineTime() - time);
+	ReplyToCommand(client, "Dumped %d VScripts to servers /scripts/vscripts/vscripts_dump/ folder. Took %f seconds.", total, GetEngineTime() - time);
 	return Plugin_Handled;
 }
 
@@ -954,7 +960,9 @@ void SaveFile(ArrayList aHand, const char[] sFile, const char[] filename, bool I
 
 	// Saving to specific folders
 	if( dump )
+	{
 		ReplaceString(sPath, sizeof(sPath), "scripts/vscripts/", "scripts/vscripts/vscripts_dump/");
+	}
 	else
 	{
 		if( ReplaceString(sPath, sizeof(sPath), "scripts/vscripts/vscripts_custom/", "scripts/vscripts/vscripts_override/") == 0 )
@@ -992,6 +1000,7 @@ void RecursiveSearchDirs(ArrayList aVScriptList, const char[] sDir)
 	FileType type;
 
 	hDir = OpenDirectory(sDir, true, NULL_STRING);
+	if( !hDir ) return;
 
 	// Loop through files
 	while( hDir.GetNext(sPath, sizeof(sPath), type) )
