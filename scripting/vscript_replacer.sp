@@ -1,6 +1,6 @@
 /*
 *	VScript File Replacer
-*	Copyright (C) 2023 Silvers
+*	Copyright (C) 2024 Silvers
 *
 *	This program is free software: you can redistribute it and/or modify
 *	it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 
 
-#define PLUGIN_VERSION		"1.16"
+#define PLUGIN_VERSION		"1.17"
 
 /*======================================================================================
 	Plugin Info:
@@ -31,6 +31,9 @@
 
 ========================================================================================
 	Change Log:
+
+1.17 (28-Jan-2024)
+	- Fixed memory leak caused by clearing StringMap/ArrayList data instead of deleting.
 
 1.16 (10-Mar-2023)
 	- Changed command "sm_vs_dump" to display the number of scripts dumped.
@@ -620,15 +623,11 @@ void ResetPlugin()
 	g_bLoadNewMap = false;
 
 	// Clear array of script names
-	if( gOverrideScripts != null )
-		gOverrideScripts.Clear();
-	else
-		gOverrideScripts = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	delete gOverrideScripts;
+	gOverrideScripts = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 
-	if( gOverrideConfig != null )
-		gOverrideConfig.Clear();
-	else
-		gOverrideConfig = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+	delete gOverrideConfig;
+	gOverrideConfig = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
 
 	// Array of scripts to override
 	delete gOverrideCustom;
@@ -831,7 +830,11 @@ void SaveOverrides()
 		}
 	}
 
-	gOverrideConfig.Clear();
+	// .Clear() is creating a memory leak
+	// gOverrideConfig.Clear();
+	delete gOverrideConfig;
+	gOverrideConfig = new ArrayList(ByteCountToCells(PLATFORM_MAX_PATH));
+
 	delete aVScriptList;
 }
 
